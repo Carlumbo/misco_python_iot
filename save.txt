@@ -1,0 +1,1 @@
+C:/Program Files/Internet Explorer/ieinstal.exe,C:/Program Files (x86)/Google/Chrome/Application/chrome.exe,C:/Program Files/Internet Explorer/iexplore.exe,
