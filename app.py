@@ -15,7 +15,7 @@ registration_user = StringVar()
 registration_password = StringVar()
 registration_auth = StringVar()
 
-#Sign_in windo
+#Sign_in window
 def sign_in()
     login_window =  Toplevel()
     login_window.title('Login')
@@ -24,11 +24,11 @@ def sign_in()
 global login_user
 global login_password
 
-message1 = tk.Label(login_window, text="Username", relief=GROOVE)
-message1.place(relx=0.2,  rely=0.5, anchor=S )
+label1 = tk.Label(login_window, text="Username", relief=GROOVE)
+label1.place(relx=0.2,  rely=0.5, anchor=S )
 
-message2 = tk.Label(login_window, text="Password", relief=GROOVE)
-message2.place(relx=0.2, relyy=0.5, anchor=S)
+label2 = tk.Label(login_window, text="Password", relief=GROOVE)
+label2.place(relx=0.2, relyy=0.5, anchor=S)
 
 username = Entry(login_window, textvariable=login_userm relief=GROOVE)
 username.place(relx=0.6, rely=0.3, achor=CENTER , width=300)
@@ -40,3 +40,29 @@ signInButton = tk.Button(login_window, text="Sign_In", width=20. height=2, comma
 
 exitButton = tk.Button(login_window, text="EXIT", wdith=20, command=login_window.destroy, bg="red", activebackground="red", fg="White", relief=GROOVE)
 exitButton.place(relx=0.3, rely=1, anchor=SE)
+
+#Sign up with Auth funcitonality
+
+def sign_up:
+
+    reg_win = Toplevel()
+    reg_win.title("Create Accountt")
+    reg_win.geomtry("350x200")
+    reg_win.configure(bg="blue")
+
+global reg_user
+global reg_password
+global reg_pass_confirm
+global reg_auth
+
+label1 = tk.Label(reg_win, text="Username", relief=GROOVE)
+label1.place(relx=0.2,rely=0.2, anchor=CENTER)
+
+label2= tk.Label(reg_win, text="Password", relief=GROOVE)
+label2.place(relx=0.2,rely=0.4, anchor=CENTER)
+
+label3= tk.Label(reg_win, text="Password Confirmation-", relief=GROOVE)
+label3.place(relx=0.2,rely=0.6, anchor=CENTER)
+
+label4= tk.Label(reg_win, text="Authorization", relief=GROOVE)
+label4.place(relx=0.2,rely=0.6, anchor=CENTER)
