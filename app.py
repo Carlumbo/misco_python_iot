@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import *
-import os, re, platform, socket, uuid
+import os, re, platform, socket, uuid, json, requests
 
 root = tk.Tk()
 root.title('Misco Login')
@@ -114,7 +114,22 @@ def create_user():
     password_confrimation = reg_pass_confirm.get()
     authoriazation = reg_auth.get()
 
-# instial form signin set up
+def download_api():
+    x = requests.get('http://localhost:3001/api/v1/products')
+    ##y = json.dumps(x)
+    print(x.json()[2]['title'])
+    ##print(y)
+
+    """if macInfo.get():
+        text_response = macInfo.get()
+    else:
+        text_response = "Text was empty!"
+
+    textWidget = tk.Text()
+    textWidget.insert(tk.END, text_response)
+    textWidget.grid(row=3, column=0, sticky="WE")
+"""
+# intial form signin set up
 
 #grabbing PC name
 pcLabel =tk.Label(root, text="Current System Name:",relief=GROOVE)
@@ -124,13 +139,17 @@ platId = platform.uname().system + "-" + platform.uname().node
 
 pcInfo = tk.Label(root, text=platId)
 pcInfo.place(relx= 0.5, rely=0.3, anchor=CENTER)
+
+
 #get mac address
 macLabel =tk.Label(root, text="Unique Mac Address:",relief=GROOVE)
 macLabel.place(relx=0.2,rely=0.4, anchor=CENTER)
-macInfo =  (':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
+
+# changing mac into stander format
+macUUID =  (':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
 for ele in range(0,8*6,8)][::-1]))
 
-macInfo = tk.Label(root, text=macInfo)
+macInfo = tk.Label(root, text=macUUID)
 macInfo.place(relx= 0.5, rely=0.4, anchor=CENTER)
 
 
@@ -144,7 +163,7 @@ ipAddress = socket.gethostbyname(hostName)
 ipInfo = tk.Label(root, text=ipAddress)
 ipInfo.place(relx= 0.5, rely=0.5, anchor=CENTER)
 
-
+#Login buttons
 loginButton =tk.Button (root, text="Login", width=20, height=3, command=sign_in,
                   activebackground="grey", activeforeground="red"
 , relief=GROOVE)
@@ -154,6 +173,11 @@ signUpButton = tk.Button(root, text="Sign Up", width=20,height=3, command=sign_u
                          activebackgroun="grey", activeforeground="red"
 , relief=GROOVE)
 signUpButton.place(relx=0.7, rely=0.75, anchor=CENTER)
+
+#add button for api tests
+requestButton = tk.Button(root, text="Request API", width=20, command=download_api )
+requestButton.place(relx=0.7, rely=1 , anchor=S)
+
 
 exitButton = tk.Button(root, text='EXIT', width=20, command=root.destroy,
                         bg="red", activebackground="red", relief=GROOVE)
