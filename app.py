@@ -83,7 +83,13 @@ authorization.place(relx=0.6, rely=0.6, anchor=Center, width=300)
 
 signUpButton = tk.Button(reg_win, text="Sign up", width=20 height=2
 , command=create_user,
-                        activebackground="grey", activeforeground="red"
+    activebackground="grey", activeforeground="red"
 , relief=GROOVE)
-    singnUpButton.place(relx=0.5, rely=0.8, anchor=CENTER)
-    exitButton = tk.Button(reg_win, text='EXIT' )
+
+singnUpButton.place(relx=0.5, rely=0.8, anchor=CENTER)
+exitButton = tk.Button(reg_win, text='EXIT', width=20
+, command=reg_win.destroy,
+    bg='red', activebackground="red", relief=GROOVE )
+exitButton.place(relx=0.3, rely=1, anchor=SE)
+
+#request handlers
