@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import *
-import os, sys, re, platform, socket
+import os, re, platform, socket, uuid
 
 root = tk.Tk()
 root.title('Misco Login')
@@ -115,26 +115,35 @@ def create_user():
     authoriazation = reg_auth.get()
 
 # instial form signin set up
-os_type = sys.platform.lower()
 
 #grabbing PC name
-pcLabel =tk.Label(root, text="Current PC Info:",relief=GROOVE)
+pcLabel =tk.Label(root, text="Current System Name:",relief=GROOVE)
 pcLabel.place(relx=0.2,rely=0.3, anchor=CENTER)
 platId = platform.uname().system + "-" + platform.uname().node
 
 
 pcInfo = tk.Label(root, text=platId)
 pcInfo.place(relx= 0.5, rely=0.3, anchor=CENTER)
+#get mac address
+macLabel =tk.Label(root, text="Unique Mac Address:",relief=GROOVE)
+macLabel.place(relx=0.2,rely=0.4, anchor=CENTER)
+macInfo =  (':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
+for ele in range(0,8*6,8)][::-1]))
+
+macInfo = tk.Label(root, text=macInfo)
+macInfo.place(relx= 0.5, rely=0.4, anchor=CENTER)
+
 
 #grabbing IP address of origin pc
-ipLabel =tk.Label(root, text="Current PC Info:",relief=GROOVE)
-ipLabel.place(relx=0.2,rely=0.4, anchor=CENTER)
+ipLabel =tk.Label(root, text="ip Address:",relief=GROOVE)
+ipLabel.place(relx=0.2,rely=0.5, anchor=CENTER)
 
 hostName =  socket.gethostname()
 ipAddress = socket.gethostbyname(hostName)
 
 ipInfo = tk.Label(root, text=ipAddress)
-ipInfo.place(relx= 0.5, rely=0.4, anchor=CENTER)
+ipInfo.place(relx= 0.5, rely=0.5, anchor=CENTER)
+
 
 loginButton =tk.Button (root, text="Login", width=20, height=3, command=sign_in,
                   activebackground="grey", activeforeground="red"
