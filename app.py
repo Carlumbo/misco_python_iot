@@ -66,3 +66,24 @@ label3.place(relx=0.2,rely=0.6, anchor=CENTER)
 
 label4= tk.Label(reg_win, text="Authorization", relief=GROOVE)
 label4.place(relx=0.2,rely=0.6, anchor=CENTER)
+
+username = Entry(reg_win, relief=GROOVE, textvariable=reg_user)
+username.place(relx=0.6, rely=0.2, anchor=Center, width=300)
+
+
+password = Entry(reg_win, relief=GROOVE, textvariable=reg_password)
+password.place(relx=0.6, rely=0.4, anchor=Center, width=300)
+
+
+password_confirmation = Entry(reg_win, relief=GROOVE, textvariable=reg_pass_confirm)
+password_confirmation.place(relx=0.6, rely=0.6, anchor=Center, width=300)
+
+authoriazation = Entry(reg_win, relief=GROOVE, textvariable=reg_auth)
+authorization.place(relx=0.6, rely=0.6, anchor=Center, width=300)
+
+signUpButton = tk.Button(reg_win, text="Sign up", width=20 height=2
+, command=create_user,
+                        activebackground="grey", activeforeground="red"
+, relief=GROOVE)
+    singnUpButton.place(relx=0.5, rely=0.8, anchor=CENTER)
+    exitButton = tk.Button(reg_win, text='EXIT' )
