@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import *
+from datetime import *
 import os, re, platform, socket, uuid, json, requests
 
 root = tk.Tk()
@@ -19,28 +20,30 @@ reg_auth = StringVar()
 #Sign_in window
 
 def send_Data(): 
+    print("Hello")
     dataType2 = dataType.get()
     dataPoint2 = dataPoint.get()
     x = {
         "type": dataType2,
-        "dataPoint": dataPoint2, 
         "Uploader": currentUser, 
-        "PC orgin": macUUID, 
-        "Email": currentUser
+        "PCorigin": macUUID,
+        "dataPoint": dataPoint2,
+        "createdAt": datetime.now().strftime('%d-%m-%Y %H:%M:%S')
     }
-
-    requests.post("http://localhost:3000/index/new", x)
+    print(x)
+    requests.post('http://localhost:3000/index/new', x)
 
 def add_data():
     global currentUser
+    global passEnter
     global dataType
     global dataPoint
 
     dataType =  StringVar()
     dataPoint = DoubleVar()
     
-    currentUser = email1.get()
-    passEnter = passW.get()
+    currentUser = email_verify.get()
+    passEnter = password_verify.get()
     data_window = Toplevel()
     data_window.title('Data Entry')
     data_window.geometry('500x350')
@@ -53,6 +56,9 @@ def add_data():
     requests.post("http://localhost:3000/user/login", loginReq)
 
     login_window.destroy()
+
+    greetingLabel = tk.Label(data_window, text=greeting, relief=GROOVE)
+    greetingLabel.place(relx=0.6,  rely=0.1, anchor=S )
     
     label1 = tk.Label(data_window, text="Type", relief=GROOVE)
     label1.place(relx=0.2,  rely=0.3, anchor=S )
@@ -80,39 +86,70 @@ def add_data():
     pcOrigin = tk.Label(data_window, text=macUUID, relief=GROOVE)
     pcOrigin.place(relx=0.4, rely=0.7, anchor=S)
 
-
+    
     sendButton = tk.Button(data_window, text="Send", width=20, command=send_Data, bg="blue", activebackground="red", fg="White", relief=GROOVE)
     sendButton.place(relx=0.6, rely=1, anchor=SE)
 
    # exitButton = tk.Button(data_window, text="EXIT", width=20, command=data_window.destroy(), bg="red", activebackground="red", fg="White", relief=GROOVE)
     #exitButton.place(relx=0.3, rely=1, anchor=SE)
+
+def login_verify():
+    global greeting
+    currentUser = email_verify.get()
+    passEnter = password_verify.get()
+    list_of_users =  requests.get('http://localhost:3000/user/all')
+    x = list_of_users.json()
+    count =  len(x)
+    y = 0 
+    while y < count:
+        if currentUser ==  x[y]['email'] and passEnter == x[y]['password']:
+            greeting = x[y]['email']
+            # print(greeting)
+            # print("Login Succesful")
+            add_data()
+            break
+        elif currentUser ==  x[y]['email'] and passEnter != x[y]['password'] :
+            print("Password Incorrect")
+            break
+        elif y == count - 1 and currentUser !=  x[y]['email'] :
+            print("User not found ")
+            y+=1
+        else  :
+            y+=1
+    #print("hello")
+
 def sign_in():
     global login_window
+    # root.destroy()
     login_window =  Toplevel()
     login_window.title('Login')
     login_window.geometry('500x350')
     login_window.configure(bg="grey")
 
-    global email1
-    global passW
-    email1 = StringVar()
-    passW = StringVar()
+    
+    global email_verify
+    global password_verify
+    email_verify = StringVar()
+    password_verify = StringVar()
+    #greeting = StringVar()
 
-    EmailL  = tk.Label(login_window, text="email", relief=GROOVE)
-    EmailL .place(relx=0.2,  rely=0.3, anchor=S )
+    emailLabel  = tk.Label(login_window, text="email", relief=GROOVE)
+    emailLabel .place(relx=0.2,  rely=0.3, anchor=S )
 
-    passwordL = tk.Label(login_window, text="Password", relief=GROOVE)
-    passwordL.place(relx=0.2, rely=0.5, anchor=S)
+    passLabel = tk.Label(login_window, text="Password", relief=GROOVE)
+    passLabel.place(relx=0.2, rely=0.5, anchor=S)
 
-    emailE = tk.Entry(login_window, textvariable=email1, relief=GROOVE)
+    emailE = tk.Entry(login_window, textvariable=email_verify, relief=GROOVE)
     emailE.place(relx=0.6, rely=0.3, anchor=CENTER , width=300)
 
-    passwordE = Entry(login_window, show="*", textvariable=passW, relief=GROOVE)
+    passwordE = Entry(login_window, show="*", textvariable=password_verify, relief=GROOVE)
     passwordE.place(relx=0.6, rely=0.5, anchor=S , width=300)
 
-    signInButton = tk.Button(login_window, text="Sign In", width=20, height=2, command=add_data, activebackground="grey", activeforeground="red")
-    signInButton.place(relx= 0.8, rely=0.8, anchor=SE)
+    # signInButton = tk.Button(login_window, text="Sign In", width=20, height=2, command=add_data, activebackground="grey", activeforeground="red")
+    # signInButton.place(relx= 0.8, rely=0.8, anchor=SE)
 
+    signInButton = tk.Button(login_window, text="Sign In", width=20, height=2, command=login_verify, activebackground="grey", activeforeground="red")
+    signInButton.place(relx= 0.8, rely=0.8, anchor=SE)
 
 
     exitButton = tk.Button(login_window, text="EXIT", width=20, command=login_window.destroy, bg="red", activebackground="red", fg="White", relief=GROOVE)
@@ -120,70 +157,62 @@ def sign_in():
 
 #Sign up with Auth funcitonality
 
-def sign_up():
+# def sign_up():
 
-    reg_win = Toplevel()
-    reg_win.title("Create Account")
-    reg_win.geometry("550x300")
-    reg_win.configure(bg="grey")
+#     reg_win = Toplevel()
+#     reg_win.title("Create Account")
+#     reg_win.geometry("550x300")
+#     reg_win.configure(bg="grey")
 
-    global reg_user
-    global reg_password
-    global reg_pass_confirm
-    global reg_auth
+#     global reg_user
+#     global reg_password
+#     global reg_pass_confirm
+#     global reg_auth
 
-    label1 = tk.Label(reg_win, text="email", relief=GROOVE)
-    label1.place(relx=0.2,rely=0.2, anchor=CENTER)
+#     label1 = tk.Label(reg_win, text="email", relief=GROOVE)
+#     label1.place(relx=0.2,rely=0.2, anchor=CENTER)
 
-    label2= tk.Label(reg_win, text="Password", relief=GROOVE)
-    label2.place(relx=0.2,rely=0.3, anchor=CENTER)
+#     label2= tk.Label(reg_win, text="Password", relief=GROOVE)
+#     label2.place(relx=0.2,rely=0.3, anchor=CENTER)
 
-    label3= tk.Label(reg_win, text="Password Confirmation", relief=GROOVE)
-    label3.place(relx=0.2,rely=0.4, anchor=CENTER)
+#     label3= tk.Label(reg_win, text="Password Confirmation", relief=GROOVE)
+#     label3.place(relx=0.2,rely=0.4, anchor=CENTER)
 
-    email = Entry(reg_win, relief=GROOVE, textvariable=reg_user)
-    email.place(relx=0.6, rely=0.2, anchor=CENTER, width=300)
+#     email = Entry(reg_win, relief=GROOVE, textvariable=reg_user)
+#     email.place(relx=0.6, rely=0.2, anchor=CENTER, width=300)
     
 
-    password = Entry(reg_win, relief=GROOVE, textvariable=reg_password)
-    password.place(relx=0.6, rely=0.3, anchor=CENTER, width=300)
+#     password = Entry(reg_win, relief=GROOVE, textvariable=reg_password)
+#     password.place(relx=0.6, rely=0.3, anchor=CENTER, width=300)
 
 
-    password_confirmation = Entry(reg_win, relief=GROOVE, textvariable=reg_pass_confirm)
-    password_confirmation.place(relx=0.6, rely=0.4, anchor=CENTER, width=300)
+#     password_confirmation = Entry(reg_win, relief=GROOVE, textvariable=reg_pass_confirm)
+#     password_confirmation.place(relx=0.6, rely=0.4, anchor=CENTER, width=300)
 
-    authorization = Entry(reg_win, relief=GROOVE, textvariable=reg_auth)
-    authorization.place(relx=0.6, rely=0.5, anchor=CENTER, width=300)
+#     authorization = Entry(reg_win, relief=GROOVE, textvariable=reg_auth)
+#     authorization.place(relx=0.6, rely=0.5, anchor=CENTER, width=300)
 
-    signUpButton = tk.Button(reg_win, text="Sign up", width=20, height=2
-    , command=create_user,
-    activebackground="grey", activeforeground="red"
-    , relief=GROOVE)
+#     signUpButton = tk.Button(reg_win, text="Sign up", width=20, height=2
+#     , command=create_user,
+#     activebackground="grey", activeforeground="red"
+#     , relief=GROOVE)
 
-    signUpButton.place(relx=0.5, rely=1, anchor=SW)
-    exitButton = tk.Button(reg_win, text='EXIT', width=20
-    , command=reg_win.destroy,
-    bg='red', activebackground="red", relief=GROOVE )
-    exitButton.place(relx=0.3, rely=1, anchor=SE)
+#     signUpButton.place(relx=0.5, rely=1, anchor=SW)
+#     exitButton = tk.Button(reg_win, text='EXIT', width=20
+#     , command=reg_win.destroy,
+#     bg='red', activebackground="red", relief=GROOVE )
+#     exitButton.place(relx=0.3, rely=1, anchor=SE)
 
 #request handlers
 
-def check():
-    global login_user
-    global login_password
-   # setting up variables for get requsts
-    logUserGet = login_user.get()
-    logPassGet = login_password.get()
+# def check():
+#     global login_user
+#     global login_password
+#    # setting up variables for get requsts
+#     logUserGet = login_user.get()
+#     logPassGet = login_password.get()
 
-def create_user():
-    global reg_user
-    global reg_pass
-    global reg_pass_confirm
-    global reg_auth
 
-    email = reg_user.get()
-    password = reg_pass.get()
-    password_confrimation = reg_pass_confirm.get()
  
 def download_api():
     x = requests.get('http://localhost:3000/user/all')
@@ -241,14 +270,14 @@ loginButton =tk.Button (root, text="Login", width=20, height=3, command=sign_in,
 , relief=GROOVE)
 loginButton.place(relx=0.3, rely=0.75, anchor=CENTER)
 
-signUpButton = tk.Button(root, text="Sign Up", width=20,height=3, command=sign_up,
-                         activebackgroun="grey", activeforeground="red"
-, relief=GROOVE)
-signUpButton.place(relx=0.7, rely=0.75, anchor=CENTER)
+# signUpButton = tk.Button(root, text="Sign Up", width=20,height=3, command=sign_up,
+#                          activebackgroun="grey", activeforeground="red"
+# , relief=GROOVE)
+# signUpButton.place(relx=0.7, rely=0.75, anchor=CENTER)
 
 #add button for api tests
-requestButton = tk.Button(root, text="Request API", width=20, command=download_api )
-requestButton.place(relx=0.7, rely=1 , anchor=S)
+# requestButton = tk.Button(root, text="Request API", width=20, command=download_api )
+# requestButton.place(relx=0.7, rely=1 , anchor=S)
 
 
 exitButton = tk.Button(root, text='EXIT', width=20, command=root.destroy,
