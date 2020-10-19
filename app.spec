@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['app.py'],
-             pathex=['C:\\Users\\carl.palumbo\\Documents\\iot_python'],
+             pathex=['C:\\Users\\carl.palumbo\\misco-python-iot\\misco_python_iot'],
              binaries=[],
              datas=[],
              hiddenimports=[],

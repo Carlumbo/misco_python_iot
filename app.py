@@ -2,71 +2,87 @@ import tkinter as tk
 from tkinter import *
 from datetime import *
 import os, re, platform, socket, uuid, json, requests
+#os allows access to operating sysyem through the module
+#re and platform were used for testing different approaches to grabbing pc info
+#socket allows access to the pcs network info (could be down with os module, but this was more straight forward)
+#allows for unique strings of data, was going to use for giving each data block it's own unique id , but this was already done natively on the DB side
+#json allows for me to manipulate data for api calls
+#requests gives me access to CRUD functionality with api requests
 
+
+#creating a varible for the tk window
 root = tk.Tk()
+#Adding title  to the login window
 root.title('Misco Login')
-root.geometry("500x350")
+#creating the dimensions of  the root window
+root.geometry("400x350")
+# sets color of root window
 root.configure(bg="grey")
 
-#create login values
-login_user = StringVar()
-login_password = StringVar()
-#creat user info values
-reg_user = StringVar()
-reg_password = StringVar()
-reg_pass_confirm = StringVar()
-reg_auth = StringVar()
 
 #Sign_in window
-
-def send_Data(): 
+#Send data to mongoDB database
+def send_Data():
     print("Hello")
     dataType2 = dataType.get()
     dataPoint2 = dataPoint.get()
     x = {
         "type": dataType2,
-        "Uploader": currentUser, 
+        "Uploader": currentUser,
+        #Mac Id  to tell device orgin
         "PCorigin": macUUID,
+        #data point, can be any number
         "dataPoint": dataPoint2,
-        "createdAt": datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+        #sending the timestamp of when the JSON object was created
+        "createdAt": datetime.now().strftime('%m-%d-%Y %H:%M:%S')
     }
+    #print the json object to the console for verification
     print(x)
-    requests.post('http://localhost:3000/index/new', x)
+    #posting the json object to the databhase
+    requests.post('https://misc-express-mongo.herokuapp.com/index/new', x)
 
 def add_data():
+    #defining global varibles ot be shared with other methods
     global currentUser
     global passEnter
     global dataType
     global dataPoint
-
+    #creatiing two different data types
+    #One is a string for easy data identification
     dataType =  StringVar()
+    #the use of a doublevar  you can have floating numbers stored
     dataPoint = DoubleVar()
-    
+    #saves the login for the variable field
     currentUser = email_verify.get()
+    #saves the password entered at the login
     passEnter = password_verify.get()
-    data_window = Toplevel()
-    data_window.title('Data Entry')
-    data_window.geometry('500x350')
-    data_window.configure(bg="grey")
 
+    #allows for the pop up of a new data_window
+    data_window = Toplevel()
+    #names the window
+    data_window.title('Data Entry')
+    #sets dimensions for the data window
+    data_window.geometry('500x350')
+    #gives background color of window
+    data_window.configure(bg="grey")
+    #creates login request to be compared to current database info
     loginReq =  {
         "email": currentUser,
         "password": passEnter
     }
-    requests.post("http://localhost:3000/user/login", loginReq)
-
+    requests.post("https://misc-express-mongo.herokuapp.com/user/login", loginReq)
+    #destorys login in window once the req is fulfilled
     login_window.destroy()
-
+    #editable greeting menu, would be updatable from the website profile page, set intillay to just displaying your email address
     greetingLabel = tk.Label(data_window, text=greeting, relief=GROOVE)
     greetingLabel.place(relx=0.6,  rely=0.1, anchor=S )
-    
+    #asks for type (such as humidity, pressure, tempature)
     label1 = tk.Label(data_window, text="Type", relief=GROOVE)
     label1.place(relx=0.2,  rely=0.3, anchor=S )
 
-    
     dataType =  tk.Entry(data_window, textvariable=dataType, relief=GROOVE)
     dataType.place(relx=0.6, rely=0.3, anchor=CENTER , width=300)
-     
+    #asks for the actual floating data point to be sent for the DB
     label2 = tk.Label(data_window, text="Datapoint", relief=GROOVE)
     label2.place(relx=0.2, rely=0.5, anchor=S)
 
@@ -79,14 +95,14 @@ def add_data():
     #label4 = tk.Label(data_window, text=currentUser, relief=GROOVE)
     #label4.place(relx=0.4, rely=0.7, anchor=S)
 
-    
+    #displays pc origin as macUUID
     pcOrigin1 = tk.Label(data_window, text="Pc Origin", relief=GROOVE)
     pcOrigin1.place(relx=0.2, rely=0.7, anchor=S)
 
     pcOrigin = tk.Label(data_window, text=macUUID, relief=GROOVE)
     pcOrigin.place(relx=0.4, rely=0.7, anchor=S)
 
-    
+
     sendButton = tk.Button(data_window, text="Send", width=20, command=send_Data, bg="blue", activebackground="red", fg="White", relief=GROOVE)
     sendButton.place(relx=0.6, rely=1, anchor=SE)
 
@@ -94,14 +110,20 @@ def add_data():
     #exitButton.place(relx=0.3, rely=1, anchor=SE)
 
 def login_verify():
+    #logic used by sign_in to check data
+    #defines global varible for greeting
     global greeting
+    #grabs user info at login
     currentUser = email_verify.get()
     passEnter = password_verify.get()
-    list_of_users =  requests.get('http://localhost:3000/user/all')
+    #compares user info to database infor
+    list_of_users =  requests.get('https://misc-express-mongo.herokuapp.com/user/all')
     x = list_of_users.json()
     count =  len(x)
-    y = 0 
+    y = 0
+    #goes through a series of cases to compare info to whats in the DB
     while y < count:
+        #if user email and password are correct opens window for data entry
         if currentUser ==  x[y]['email'] and passEnter == x[y]['password']:
             greeting = x[y]['email']
             # print(greeting)
@@ -119,6 +141,7 @@ def login_verify():
     #print("hello")
 
 def sign_in():
+    #actual sign in window layout
     global login_window
     # root.destroy()
     login_window =  Toplevel()
@@ -126,7 +149,7 @@ def sign_in():
     login_window.geometry('500x350')
     login_window.configure(bg="grey")
 
-    
+    #varibles to store input inforamtion
     global email_verify
     global password_verify
     email_verify = StringVar()
@@ -148,6 +171,7 @@ def sign_in():
     # signInButton = tk.Button(login_window, text="Sign In", width=20, height=2, command=add_data, activebackground="grey", activeforeground="red")
     # signInButton.place(relx= 0.8, rely=0.8, anchor=SE)
 
+    #sign in button that calls the login_verify funciton
     signInButton = tk.Button(login_window, text="Sign In", width=20, height=2, command=login_verify, activebackground="grey", activeforeground="red")
     signInButton.place(relx= 0.8, rely=0.8, anchor=SE)
 
@@ -155,71 +179,13 @@ def sign_in():
     exitButton = tk.Button(login_window, text="EXIT", width=20, command=login_window.destroy, bg="red", activebackground="red", fg="White", relief=GROOVE)
     exitButton.place(relx=0.3, rely=1, anchor=SE)
 
-#Sign up with Auth funcitonality
-
-# def sign_up():
-
-#     reg_win = Toplevel()
-#     reg_win.title("Create Account")
-#     reg_win.geometry("550x300")
-#     reg_win.configure(bg="grey")
-
-#     global reg_user
-#     global reg_password
-#     global reg_pass_confirm
-#     global reg_auth
-
-#     label1 = tk.Label(reg_win, text="email", relief=GROOVE)
-#     label1.place(relx=0.2,rely=0.2, anchor=CENTER)
-
-#     label2= tk.Label(reg_win, text="Password", relief=GROOVE)
-#     label2.place(relx=0.2,rely=0.3, anchor=CENTER)
-
-#     label3= tk.Label(reg_win, text="Password Confirmation", relief=GROOVE)
-#     label3.place(relx=0.2,rely=0.4, anchor=CENTER)
-
-#     email = Entry(reg_win, relief=GROOVE, textvariable=reg_user)
-#     email.place(relx=0.6, rely=0.2, anchor=CENTER, width=300)
-    
-
-#     password = Entry(reg_win, relief=GROOVE, textvariable=reg_password)
-#     password.place(relx=0.6, rely=0.3, anchor=CENTER, width=300)
-
-
-#     password_confirmation = Entry(reg_win, relief=GROOVE, textvariable=reg_pass_confirm)
-#     password_confirmation.place(relx=0.6, rely=0.4, anchor=CENTER, width=300)
-
-#     authorization = Entry(reg_win, relief=GROOVE, textvariable=reg_auth)
-#     authorization.place(relx=0.6, rely=0.5, anchor=CENTER, width=300)
-
-#     signUpButton = tk.Button(reg_win, text="Sign up", width=20, height=2
-#     , command=create_user,
-#     activebackground="grey", activeforeground="red"
-#     , relief=GROOVE)
-
-#     signUpButton.place(relx=0.5, rely=1, anchor=SW)
-#     exitButton = tk.Button(reg_win, text='EXIT', width=20
-#     , command=reg_win.destroy,
-#     bg='red', activebackground="red", relief=GROOVE )
-#     exitButton.place(relx=0.3, rely=1, anchor=SE)
-
-#request handlers
-
-# def check():
-#     global login_user
-#     global login_password
-#    # setting up variables for get requsts
-#     logUserGet = login_user.get()
-#     logPassGet = login_password.get()
-
-
- 
+#previiously used for dispalying database information, this was for testing at the time and additonal functionality (registering a user through the app)
 def download_api():
-    x = requests.get('http://localhost:3000/user/all')
+    x = requests.get('https://misc-express-mongo.herokuapp.com/user/all')
     ##y = json.dumps(x)
     print(x.json())
     ##print(y)z
-     
+
     """if macInfo.get():
         text_response = macInfo.get()
     else:
@@ -231,44 +197,44 @@ def download_api():
 """
 # intial form signin set up
 
-#grabbing PC name
+#grabbing PC name and storing it into a global variable
 global platId
 pcLabel =tk.Label(root, text="Current System Name:",relief=GROOVE)
-pcLabel.place(relx=0.2,rely=0.3, anchor=CENTER)
+pcLabel.place(relx=0.3,rely=0.3, anchor=CENTER)
 platId = platform.uname().system + "-" + platform.uname().node
 
 pcInfo = tk.Label(root, text=platId)
-pcInfo.place(relx= 0.5, rely=0.3, anchor=CENTER)
+pcInfo.place(relx= 0.7, rely=0.3, anchor=CENTER)
 
 
-#get mac address
+#get mac address anbd store into global varible
 macLabel =tk.Label(root, text="Unique Mac Address:",relief=GROOVE)
-macLabel.place(relx=0.2,rely=0.4, anchor=CENTER)
+macLabel.place(relx=0.3,rely=0.4, anchor=CENTER)
 
 global macUUID
-# changing mac into stander format
+# changing mac into standard format
 macUUID =  (':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
 for ele in range(0,8*6,8)][::-1]))
 
 macInfo = tk.Label(root, text=macUUID)
-macInfo.place(relx= 0.5, rely=0.4, anchor=CENTER)
+macInfo.place(relx= 0.7, rely=0.4, anchor=CENTER)
 
 
 #grabbing IP address of origin pc
 ipLabel =tk.Label(root, text="ip Address:",relief=GROOVE)
-ipLabel.place(relx=0.2,rely=0.5, anchor=CENTER)
-
+ipLabel.place(relx=0.3, rely=0.5, anchor=CENTER)
+#grabbing the actual ip through the socket module
 hostName =  socket.gethostname()
 ipAddress = socket.gethostbyname(hostName)
 
 ipInfo = tk.Label(root, text=ipAddress)
-ipInfo.place(relx= 0.5, rely=0.5, anchor=CENTER)
+ipInfo.place(relx= 0.7, rely=0.5, anchor=CENTER)
 
 #Login buttons
 loginButton =tk.Button (root, text="Login", width=20, height=3, command=sign_in,
                   activebackground="grey", activeforeground="red"
 , relief=GROOVE)
-loginButton.place(relx=0.3, rely=0.75, anchor=CENTER)
+loginButton.place(relx=0.5, rely=0.75, anchor=CENTER)
 
 # signUpButton = tk.Button(root, text="Sign Up", width=20,height=3, command=sign_up,
 #                          activebackgroun="grey", activeforeground="red"
@@ -283,5 +249,4 @@ loginButton.place(relx=0.3, rely=0.75, anchor=CENTER)
 exitButton = tk.Button(root, text='EXIT', width=20, command=root.destroy,
                         bg="red", activebackground="red", relief=GROOVE)
 exitButton.place(relx=0.3, rely=1, anchor=SE)
-
 root.mainloop()
